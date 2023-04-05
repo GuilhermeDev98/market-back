@@ -15,11 +15,56 @@ model User {
   name  String
   email String  @unique
   password String
-  role @default('CLIENT')
+  role Roles @default(CLIENT)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  deletedAt DateTime?
 }
 
+model Products {
+  id    Int     @id @default(autoincrement())
+  name  String
+  brand String
+  stock Int
+  price     Float
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  deletedAt DateTime?
+}
 
-enum RolesTypes {
+model Sale {
+  id        Int     @id @default(autoincrement())
+  createdAt DateTime
+  paymentMethod PaymentMethod @default(CASH)
+  saleItems SaleItem[]
+}
+
+model Product {
+  id      Int    @id @default(autoincrement())
+  name    String
+  price   Float
+  saleItems SaleItem[]
+}
+
+model SaleItem {
+  id            Int     @id @default(autoincrement())
+  sale          Sale    @relation(fields: [saleId], references: [id])
+  saleId        Int
+  product       Product @relation(fields: [productId], references: [id])
+  productId     Int
+  quantity      Int
+}
+
+enum Roles {
   CLIENT
   ADM
+}
+
+enum PaymentMethod {
+  CREDIT_CARD
+  DEBIT_CARD
+  CASH
+  PIX
+  TRANSFER
+  BOLETO_BANCARIO
 }

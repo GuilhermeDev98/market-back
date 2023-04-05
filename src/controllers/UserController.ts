@@ -1,18 +1,11 @@
 import { Request, Response } from 'express';
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, User } from '@prisma/client';
 import bcrypt from 'bcrypt';
 
 const prisma = new PrismaClient();
 
-interface User {
-  name: string;
-  email: string;
-  password: string;
-  role: string;
-}
-
-class UserController {
-  async create(req: Request, res: Response) {
+export class UserController {
+  static async create(req: Request, res: Response) {
     const { name, email, password, role }: User = req.body;
 
     const salt = await bcrypt.genSalt(10);
@@ -30,7 +23,7 @@ class UserController {
     res.json(user);
   }
 
-  async login(req: Request, res: Response) {
+  static async login(req: Request, res: Response) {
     const { email, password }: User = req.body;
 
     const user = await prisma.user.findUnique({
@@ -38,17 +31,15 @@ class UserController {
     });
 
     if (!user) {
-      return res.status(404).json({ message: 'User not found' });
+      return res.status(404).json({ message: 'Usuário Não Encontrado !' });
     }
 
     const isMatch = await bcrypt.compare(password, user.password);
 
     if (!isMatch) {
-      return res.status(401).json({ message: 'Incorrect password' });
+      return res.status(401).json({ message: 'Senha Incorreta !' });
     }
 
     res.json(user);
   }
 }
-
-export default UserController
